@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-server
+  namespace: mlflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow
+  template:
+    metadata:
+      labels:
+        app: mlflow
+    spec:
+      containers:
+      - name: mlflow
+        # 파이썬 기반 MLflow 공식 내장 이미지 사용
+        image: ghcr.io/mlflow/mlflow:v2.10.2
+        # 💡서버 실행 전 DB 드라이버(psycopg2)와 S3 드라이버(boto3)를 먼저 설치합니다.
+        command:
+        - /bin/sh
+        - -c
+        - "pip install psycopg2-binary boto3 && mlflow server --host=0.0.0.0 --port=5000 --backend-store-uri=postgresql://postgres:mlflow123@mlflow-db-postgresql.mlflow.svc.cluster.local:5432/mlflow --default-artifact-root=s3://mlflow/"
+        ports:
+        - containerPort: 5000
+        env:
+        # 💡 기존 Kubeflow MinIO와 통신하기 위한 환경변수 설정
+        - name: MLFLOW_S3_ENDPOINT_URL
+          value: "http://minio-service.kubeflow.svc.cluster.local:9000"
+        - name: AWS_ACCESS_KEY_ID
+          value: "minio"
+        - name: AWS_SECRET_ACCESS_KEY
+          value: "minio123"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-service
+  namespace: mlflow
+spec:
+  # 💡 Step 6에서 구축하신 MetalLB를 활용해 외부 IP를 직접 발급받습니다!
+  type: LoadBalancer
+  selector:
+    app: mlflow
+  ports:
+  - port: 5000
+    targetPort: 5000
+    
