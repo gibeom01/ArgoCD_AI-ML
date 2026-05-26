@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mlflow-server
+  name: argocd-mlflow-server
   namespace: mlflow
 spec:
   replicas: 1
@@ -36,7 +36,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mlflow-service
+  name: argocd-mlflow-service
   namespace: mlflow
 spec:
   # 💡 Step 6에서 구축하신 MetalLB를 활용해 외부 IP를 직접 발급받습니다!
