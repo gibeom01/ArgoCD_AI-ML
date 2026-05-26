@@ -16,7 +16,7 @@ spec:
       containers:
       - name: mlflow
         # 파이썬 기반 MLflow 공식 내장 이미지 사용
-        image: ghcr.io/mlflow/mlflow:v2.10.2
+        image: ghcr.io/mlflow/mlflow:v2.11.0
         # 💡서버 실행 전 DB 드라이버(psycopg2)와 S3 드라이버(boto3)를 먼저 설치합니다.
         command:
         - /bin/sh
